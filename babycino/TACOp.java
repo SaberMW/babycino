@@ -25,7 +25,7 @@ public class TACOp {
         this.label = label;
         this.n = n;
     }
-
+    
     // Accessors to return the values of the TACOp fields:
 
     public TACOpType getType() {
@@ -54,6 +54,7 @@ public class TACOp {
 
     // Convenience static factory methods to return TACOps of a specific type:
     
+    
     public static TACOp mov(String r1, String r2) {
         return new TACOp(TACOpType.MOV, r1, r2, null, null, 0);
     }
@@ -73,6 +74,12 @@ public class TACOp {
     public static TACOp binop(String r1, String r2, String r3, int n) {
         return new TACOp(TACOpType.BINOP, r1, r2, r3, null, n);
     }
+
+    public static TACOp jo(String r1, String label) {
+        return new TACOp(TACOpType.jo, r1, null, null, label, 0);
+    }
+    
+    
 
     // Include a convenience method for this binop, as size addition is so common.
     public static TACOp add(String r1, String r2, String r3) {
@@ -204,6 +211,8 @@ public class TACOp {
                 return "    " + this.r1 + " = " + this.label;
             case NOP:
                 return "    ";
+            case jo:
+                return "    " + "jo " + this.r1 + ", " + this.label;
             default:
                 throw new IllegalStateException();
         }

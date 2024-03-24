@@ -1,8 +1,0 @@
-class TestAssignError {
-    public static void main(String[] args) {
-        int x;
-        boolean y;
-        x = true; // Error: assigning boolean to int
-        y = 10;   // Error: assigning int to boolean
-    }
-}
