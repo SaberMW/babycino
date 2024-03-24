@@ -1,9 +1,0 @@
-class Test_H1_feature {
-    public static void main(String[] args) {
-        int x;
-        x = 5;
-        do {
-            System.out.println("This should not be printed.");
-        } while (x); 
-    }
-}
