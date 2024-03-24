@@ -1,0 +1,9 @@
+class Test_H3_feature {
+    public static void main(String[] args) {
+        int x;
+        x = 1;
+        do {
+            System.out.println("This should be printed infinitely.");
+        } while (x == 1); // Condition always true
+    }
+}

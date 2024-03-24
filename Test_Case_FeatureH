@@ -1,0 +1,59 @@
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class Test_Case_FeatureH {
+
+    @Test
+    public void testDoWhileLoopExecutesAtLeastOnce() {
+        int x = 5;
+        int y = 10;
+        int iterations = 0;
+        do {
+            iterations++;
+            y--;
+        } while (x < 0); // 'x' is not less than 0, loop should execute only once
+        assertEquals(1, iterations); // Assert that loop executed exactly once
+        assertEquals(9, y); // Assert the expected value of 'y'
+    }
+
+    @Test
+    public void testDoWhileLoopEndsWhenConditionIsTrue() {
+        int x = 5; // Condition becomes true after one iteration
+        int y = 10;
+        int iterations = 0;
+        do {
+            iterations++;
+            y--;
+        } while (x == 5); // Condition becomes true after one iteration
+        assertEquals(1, iterations); // Assert that loop executed exactly once
+        assertEquals(9, y); // Assert the expected value of 'y'
+    }
+
+    @Test
+    public void testDoWhileLoopDoesNotExecuteIfConditionIsFalseInitially() {
+        int x = 0; // Condition is false initially
+        int y = 10;
+        int iterations = 0;
+        do {
+            iterations++;
+            y--;
+        } while (x < 0); // Condition is false, loop should not execute
+        assertEquals(0, iterations); // Assert that loop did not execute
+        assertEquals(10, y); // Assert the expected value of 'y'
+    }
+
+    @Test
+    public void testDoWhileLoopHandlesEdgeCases() {
+        // Test edge cases such as empty loop body, extreme values, etc.
+        // For example:
+        int x = 0; // Condition is false initially
+        int y = 0;
+        int iterations = 0;
+        do {
+            iterations++;
+            // No statements in the loop body
+        } while (x < 0); // Condition is false, loop should not execute
+        assertEquals(0, iterations); // Assert that loop did not execute
+        assertEquals(0, y); // Assert the expected value of 'y'
+    }
+}
