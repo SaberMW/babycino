@@ -39,7 +39,7 @@ expression :
   | expression ( '*' ) expression                                         # ExpBinOp
   | expression ( '+' | '-' ) expression                                   # ExpBinOp
   | expression ( '<' ) expression                                         # ExpBinOp
-  | expression '>=' expression                                            # ExpBinOp
+  | expression ( '>=' )expression                                         # ExpBinOp
   | expression ( '&&' ) expression                                        # ExpBinOp
   | INT        # ExpConstInt
   | 'true'     # ExpConstTrue
