@@ -70,7 +70,7 @@ public class TypeChecker extends MiniJavaBaseListener {
         Type t = this.types.pop();
         Type ret = this.method.getReturnType();
         this.check(ret.compatibleWith(t), ctx, "Return type of " + this.method.getQualifiedName() +
-            " expected to be compatible with " + ret + "; actual type: " + t);
+                " expected to be compatible with " + ret + "; actual type: " + t);
         this.method = null;
 
         // It is a fatal error if somehow not all types on the stack are used.
@@ -110,7 +110,7 @@ public class TypeChecker extends MiniJavaBaseListener {
         Type lhs = this.identifierType(ctx.identifier());
         Type rhs = this.types.pop();
         this.check(lhs.compatibleWith(rhs), ctx, "Assignment of value of type "
-            + rhs + " to variable of incompatible type " + lhs);
+                + rhs + " to variable of incompatible type " + lhs);
     }
 
     @Override
@@ -146,8 +146,6 @@ public class TypeChecker extends MiniJavaBaseListener {
         switch (op) {
             // AND is the only operator that takes booleans, not ints.
             case "&&":
-            // add OR to be the operator that takes booleans, not ints.
-            case "||":
                 this.check(lhs.isBoolean(), ctx, "Expected boolean as 1st argument to &&; actual type: " + lhs);
                 this.check(rhs.isBoolean(), ctx, "Expected boolean as 2nd argument to &&; actual type: " + rhs);
                 break;
@@ -159,13 +157,11 @@ public class TypeChecker extends MiniJavaBaseListener {
 
         switch (op) {
             // Only AND and less-than return booleans;
+            // >= feature added, returns boolean
             // all other operations return ints.
             case "&&":
-            // modify: add || OR to return booleans;
-            case "||":
             case "<":
-            // modify: add > greater than to this
-            case ">":
+            case ">=": // Feature D
                 this.types.push(new Type(Kind.BOOLEAN));
                 break;
             default:
@@ -216,12 +212,13 @@ public class TypeChecker extends MiniJavaBaseListener {
         // Store the static type of the object for code generation.
         this.sym.setStaticType(ctx, lhs);
 
-        // Iterate through args and method's params. Check length matches. Check types compatible.
+        // Iterate through args and method's params. Check length matches. Check types
+        // compatible.
         Set<Map.Entry<String, Type>> params = target.getParams();
         if (!(params.size() == args.size())) {
             this.error(ctx, "Method " + target.getQualifiedName() + " has " +
-                params.size() + " parameter(s); " + "method call has " +
-                args.size() + " parameter(s).");
+                    params.size() + " parameter(s); " + "method call has " +
+                    args.size() + " parameter(s).");
             this.types.push(new Type(this.sym.get("Object")));
             return;
         }
@@ -229,8 +226,8 @@ public class TypeChecker extends MiniJavaBaseListener {
         for (Map.Entry<String, Type> param : params) {
             Type argType = args.pop();
             this.check(param.getValue().compatibleWith(argType), ctx,
-                "Argument of type " + argType + " incompatible with parameter "
-                + param.getKey() + " of type " + param.getValue() + ".");
+                    "Argument of type " + argType + " incompatible with parameter "
+                            + param.getKey() + " of type " + param.getValue() + ".");
         }
 
         // The type of the whole expression comes from the method's return type.
@@ -336,4 +333,3 @@ public class TypeChecker extends MiniJavaBaseListener {
     }
 
 }
-

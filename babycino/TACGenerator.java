@@ -2,8 +2,6 @@ package babycino;
 
 import java.util.ArrayList;
 
-import babycino.TACBlock;
-
 // Register conventions:
 //
 // vg0, vg1, ... - global registers; not used
@@ -98,81 +96,40 @@ public class TACGenerator extends MiniJavaBaseVisitor<TACBlock> {
 
     @Override
     public TACBlock visitStmtIf(MiniJavaParser.StmtIfContext ctx) {
+        TACBlock result = new TACBlock();
+        TACBlock expr = this.visit(ctx.expression());
+        TACBlock ifTrue = this.visit(ctx.statement(0));
+        String labelElse = this.genlab();
+        TACBlock ifFalse = this.visit(ctx.statement(1));
+        String labelEnd = this.genlab();
 
-        String op = ctx.getChild(1).getText();
-        if (op.equals("||")){
-            TACBlock res = new TACBlock();
-            TACBlock expr = this.visit(ctx.expression());
-            // if the first expr false
-            TACBlock ifFalse = this.visit(ctx.statement(0));
-            String labelElse = this.genlab();
-            TACBlock ifTrue = this.visit(ctx.statement(1));
-            String labelEnd = this.genlab();
+        result.addAll(expr);
+        result.add(TACOp.jz(expr.getResult(), labelElse));
+        result.addAll(ifTrue);
+        result.add(TACOp.jmp(labelEnd));
+        result.add(TACOp.label(labelElse));
+        result.addAll(ifFalse);
+        result.add(TACOp.label(labelEnd));
 
-            res.addAll(expr);
-            res.add(TACOp.jo(expr.getResult(), labelElse));
-            res.addAll(ifFalse);                        // first statement   
-            res.add(TACOp.jmp(labelEnd));
-            res.add(TACOp.label(labelElse));
-            res.addAll(ifTrue);                      // second statement
-            res.add(TACOp.label(labelEnd));
-            return res;
-        }
-        else{
-            TACBlock result = new TACBlock();
-            TACBlock expr = this.visit(ctx.expression());
-            TACBlock ifTrue = this.visit(ctx.statement(0));
-            String labelElse = this.genlab();
-            TACBlock ifFalse = this.visit(ctx.statement(1));
-            String labelEnd = this.genlab();
-            
-            result.addAll(expr);
-            result.add(TACOp.jz(expr.getResult(), labelElse)); //jum labelElse if expr = 0/false
-            result.addAll(ifTrue);
-            result.add(TACOp.jmp(labelEnd));
-            result.add(TACOp.label(labelElse));
-            result.addAll(ifFalse);
-            result.add(TACOp.label(labelEnd));
-            
-            return result;
-        }
-        }
-        
-        @Override
-        public TACBlock visitStmtWhile(MiniJavaParser.StmtWhileContext ctx) {
-        String op = ctx.getChild(1).getText();
-        if (op.equals("||")){
-            TACBlock result = new TACBlock();
-            String labelStart = this.genlab();
-            TACBlock expr = this.visit(ctx.expression());
-            TACBlock body = this.visit(ctx.statement());
-            String labelEnd = this.genlab();
+        return result;
+    }
 
-            result.add(TACOp.label(labelStart));
-            result.addAll(expr);
-            result.add(TACOp.jo(expr.getResult(), labelEnd));
-            result.addAll(body);
-            result.add(TACOp.jmp(labelStart));
-            result.add(TACOp.label(labelEnd));
+    @Override
+    public TACBlock visitStmtWhile(MiniJavaParser.StmtWhileContext ctx) {
+        TACBlock result = new TACBlock();
+        String labelStart = this.genlab();
+        TACBlock expr = this.visit(ctx.expression());
+        TACBlock body = this.visit(ctx.statement());
+        String labelEnd = this.genlab();
 
-            return result;
-        }
-        else{
-            TACBlock result = new TACBlock();
-            String labelStart = this.genlab();
-            TACBlock expr = this.visit(ctx.expression());
-            TACBlock body = this.visit(ctx.statement());
-            String labelEnd = this.genlab();
-            
-            result.add(TACOp.label(labelStart));
-            result.addAll(expr);
-            result.add(TACOp.jz(expr.getResult(), labelEnd));
-            result.addAll(body);
-            result.add(TACOp.jmp(labelStart));
-            result.add(TACOp.label(labelEnd));
-            
-            return result;
-        }
+        result.add(TACOp.label(labelStart));
+        result.addAll(expr);
+        result.add(TACOp.jz(expr.getResult(), labelEnd));
+        result.addAll(body);
+        result.add(TACOp.jmp(labelStart));
+        result.add(TACOp.label(labelEnd));
+
+        return result;
     }
 
     @Override
@@ -199,16 +156,14 @@ public class TACGenerator extends MiniJavaBaseVisitor<TACBlock> {
         if (this.method.hasVar(id)) {
             // Variable is stored in vl register.
             result.add(TACOp.mov("vl" + this.method.getVarIndex(id), expr.getResult()));
-        }
-        else if (this.current.hasAnyVar(id)) {
+        } else if (this.current.hasAnyVar(id)) {
             // Variable is stored in memory, indexed by this (vl0).
             String dest = this.genreg();
             String idx = this.genreg();
             result.add(TACOp.immed(idx, this.current.getVarIndex(id)));
             result.add(TACOp.offset(dest, "vl0", idx));
             result.add(TACOp.store(dest, expr.getResult()));
-        }
-        else {
+        } else {
             System.err.println("Unrecognised variable: " + id);
             throw new InternalError();
         }
@@ -286,28 +241,27 @@ public class TACGenerator extends MiniJavaBaseVisitor<TACBlock> {
             result.setResult(res);
             return result;
         }
-        // modifly ::add || feature
-        if (op.equals("||")){
-            String end = this.genlab(); //return this label, and this.label++
-            String res = this.genreg();
 
-            result.addAll(expr1);   //pass expr1 into result array list 
-            // res = expr1
-            result.add(TACOp.mov(res, expr1.getResult()));
-            // if res = 0, jmp end // if res = false jum to end:false
-            result.add(TACOp.jo(res, end));
-            //expr1.dump();
-            
+        // FEATURE D:
+        if (op.equals(">=")) {
+            result.addAll(expr1);
             result.addAll(expr2);
-            result.add(TACOp.mov(res, expr2.getResult()));
 
+            String tempReg = this.genreg();
+            String negationReg = this.genreg();
+            String end = this.genlab();
+
+            // Generate TAC for a < b as the base comparison
+            result.add(TACOp.binop(tempReg, expr1.getResult(), expr2.getResult(), TACOp.binopToCode("<")));
+            result.add(TACOp.immed(negationReg, 1)); // Initially set negation register to 1 (true)
+            result.add(TACOp.jz(tempReg, end)); // If a < b is false (meaning a >= b), skip to end
+            result.add(TACOp.immed(negationReg, 0)); // Set negation register to 0, meaning a >= b was false
             result.add(TACOp.label(end));
 
-            //expr2.dump();
-            result.setResult(res);
-            
+            result.setResult(negationReg);
             return result;
         }
+
         // Generate the correct code for the operation.
         int n = TACOp.binopToCode(op);
         result.addAll(expr1);
@@ -479,8 +433,7 @@ public class TACGenerator extends MiniJavaBaseVisitor<TACBlock> {
             // Variable is stored in vl register.
             // No need to generate any code; just return the register.
             result.setResult("vl" + this.method.getVarIndex(id));
-        }
-        else if (this.current.hasAnyVar(id)) {
+        } else if (this.current.hasAnyVar(id)) {
             // Variable is stored in memory, indexed by this (vl0).
             String idx = this.genreg();
             String field = this.genreg();
@@ -488,8 +441,7 @@ public class TACGenerator extends MiniJavaBaseVisitor<TACBlock> {
             result.add(TACOp.immed(idx, this.current.getVarIndex(id)));
             result.add(TACOp.offset(field, "vl0", idx));
             result.add(TACOp.load(res, field));
-        }
-        else {
+        } else {
             System.err.println("Unrecognised variable: " + id);
             throw new InternalError();
         }
@@ -545,6 +497,4 @@ public class TACGenerator extends MiniJavaBaseVisitor<TACBlock> {
         return result;
     }
 
-
 }
-

@@ -25,7 +25,7 @@ public class TACOp {
         this.label = label;
         this.n = n;
     }
-    
+
     // Accessors to return the values of the TACOp fields:
 
     public TACOpType getType() {
@@ -35,7 +35,7 @@ public class TACOp {
     public String getR1() {
         return this.r1;
     }
-    
+
     public String getR2() {
         return this.r2;
     }
@@ -43,18 +43,17 @@ public class TACOp {
     public String getR3() {
         return this.r3;
     }
-    
+
     public String getLabel() {
         return this.label;
     }
-    
+
     public int getN() {
         return this.n;
     }
 
     // Convenience static factory methods to return TACOps of a specific type:
-    
-    
+
     public static TACOp mov(String r1, String r2) {
         return new TACOp(TACOpType.MOV, r1, r2, null, null, 0);
     }
@@ -62,7 +61,7 @@ public class TACOp {
     public static TACOp immed(String r1, int n) {
         return new TACOp(TACOpType.IMMED, r1, null, null, null, n);
     }
-    
+
     public static TACOp load(String r1, String r2) {
         return new TACOp(TACOpType.LOAD, r1, r2, null, null, 0);
     }
@@ -74,12 +73,6 @@ public class TACOp {
     public static TACOp binop(String r1, String r2, String r3, int n) {
         return new TACOp(TACOpType.BINOP, r1, r2, r3, null, n);
     }
-
-    public static TACOp jo(String r1, String label) {
-        return new TACOp(TACOpType.jo, r1, null, null, label, 0);
-    }
-    
-    
 
     // Include a convenience method for this binop, as size addition is so common.
     public static TACOp add(String r1, String r2, String r3) {
@@ -102,11 +95,11 @@ public class TACOp {
     public static TACOp call(String r1) {
         return new TACOp(TACOpType.CALL, r1, null, null, null, 0);
     }
-    
+
     public static TACOp ret() {
         return new TACOp(TACOpType.RET, null, null, null, null, 0);
     }
-    
+
     public static TACOp label(String label) {
         return new TACOp(TACOpType.LABEL, null, null, null, label, 0);
     }
@@ -134,7 +127,7 @@ public class TACOp {
     public static TACOp addrof(String r1, String label) {
         return new TACOp(TACOpType.ADDROF, r1, null, null, label, 0);
     }
-    
+
     public static TACOp nop() {
         return new TACOp(TACOpType.NOP, null, null, null, null, 0);
     }
@@ -176,7 +169,7 @@ public class TACOp {
         }
     }
 
-    // Pretty-print TACOps.    
+    // Pretty-print TACOps.
     public String toString() {
         switch (this.type) {
             case MOV:
@@ -211,12 +204,9 @@ public class TACOp {
                 return "    " + this.r1 + " = " + this.label;
             case NOP:
                 return "    ";
-            case jo:
-                return "    " + "jo " + this.r1 + ", " + this.label;
             default:
                 throw new IllegalStateException();
         }
     }
 
 }
-
